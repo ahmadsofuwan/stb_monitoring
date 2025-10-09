@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Devices;
+use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
+
+class DevicesController extends Controller
+{
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = Devices::latest();
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $btn = '<a href="javascript:void(0)" class="edit btn btn-primary btn-sm" data-id="' . encrypt($row->id) . '">Edit</a>';
+                    $btn .= ' <a href="javascript:void(0)" class="delete btn btn-danger btn-sm" data-id="' . encrypt($row->id) . '">Delete</a>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('devices.index');
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $device = Devices::find(decrypt($id));
+        $device->update([
+            'script' => $request->script,
+        ]);
+        return redirect()->route('devices.index');
+
+    }
+
+    public function destroy(string $id)
+    {
+        //
+    }
+}
