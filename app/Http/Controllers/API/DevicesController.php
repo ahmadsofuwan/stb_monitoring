@@ -17,7 +17,8 @@ class DevicesController extends Controller
        $device = Devices::where('android_id', $android_id)->orWhere('mac_address', $mac_address)->first();
        if($device){
         if($device->script != null){
-            $script = str_replace("\r", '', $device->script);
+            // Ubah ke Base64 agar aman dikirim
+            $script = base64_encode(str_replace("\r", '', $device->script));
         }
         $device->update([
             'last_active_at' => now(),
