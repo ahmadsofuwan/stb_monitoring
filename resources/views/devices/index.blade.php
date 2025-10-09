@@ -27,6 +27,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
+                        <button class="btn btn-primary mb-3" id="add">Push Script</button>
                         <table id="dataTable" class="table-striped table-bordered table">
                             <thead>
                                 <tr>
@@ -208,6 +209,7 @@
             $("#add").click(function() {
                 $("#form").attr('action', "{{ route('devices.store') }}");
                 $("input[name='_method']").remove();
+                $('#modalAdd').modal('show');
             })
 
             $('#dataTable thead input').on('keyup change', function() {
