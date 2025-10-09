@@ -20,14 +20,6 @@
                         </ol>
                     </nav>
                 </div>
-                <div class="ms-auto">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary" id="add" data-bs-toggle="modal"
-                            data-bs-target="#modalAdd">
-                            <i class="fadeIn animated bx bx-plus"></i>
-                        </button>
-                    </div>
-                </div>
             </div>
             <!--end breadcrumb-->
             <h6 class="text-uppercase mb-0">Devices</h6>
@@ -78,7 +70,7 @@
                             @csrf
                             <div class="col-md-12">
                                 <label for="inputLastName" class="form-label">Script</label>
-                                <textarea class="form-control" name="note"
+                                <textarea class="form-control" name="script"
                                     value="{{ old('script') }}"></textarea>
                                 @error('script')
                                     <div class="text-danger">{{ $message }}</div>

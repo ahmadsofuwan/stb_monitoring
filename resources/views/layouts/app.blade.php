@@ -156,7 +156,10 @@
 	<script src="assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
 	<!--app JS-->
 	<script src="assets/js/app.js"></script>
+    @stack('modal')
 	@yield("script")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    @include('sweetalert::alert', ['cdn' => "https://cdn.jsdelivr.net/npm/sweetalert2@9"])
 </body>
 
 </html>

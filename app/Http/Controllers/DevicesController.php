@@ -32,11 +32,20 @@ class DevicesController extends Controller
             'script' => $request->script,
         ]);
         return redirect()->route('devices.index');
-
     }
 
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $device = Devices::find(decrypt($id));
+        $device->delete();
+        return response()->json([
+            'message' => 'Device deleted successfully',
+        ]);
+    }
+
+    public function show(string $id)
+    {
+        $device = Devices::find(decrypt($id));
+        return response()->json($device);
     }
 }
