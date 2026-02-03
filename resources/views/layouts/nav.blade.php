@@ -28,6 +28,20 @@
                     </ul>
                 </li>
                 <li>
+                    <a href="{{ route('devices.index') }}">
+                        <div class="parent-icon"><i class="bx bx-devices"></i>
+                        </div>
+                        <div class="menu-title">Devices</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('scripts.index') }}">
+                        <div class="parent-icon"><i class="bx bx-code-alt"></i>
+                        </div>
+                        <div class="menu-title">Scripts</div>
+                    </a>
+                </li>
+                <li>
                     <a href="javascript:;" class="has-arrow">
                         <div class="parent-icon"><i class="bx bx-category"></i>
                         </div>

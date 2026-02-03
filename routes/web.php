@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::resource('/devices', App\Http\Controllers\DevicesController::class);
+Route::post('/devices/push-script', [App\Http\Controllers\DevicesController::class, 'pushScript'])->name('devices.push-script');
+Route::resource('/scripts', App\Http\Controllers\ScriptController::class);
 
 Route::get('/', function () {
     return redirect()->route('devices.index');

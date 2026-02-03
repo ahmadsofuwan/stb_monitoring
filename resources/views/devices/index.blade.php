@@ -201,6 +201,40 @@
 
 
                     });
+
+                    $(document).on('click', '.push-saved-script', function() {
+                        var deviceId = $(this).data('device-id');
+                        var scriptId = $(this).data('script-id');
+                        
+                        Swal.fire({
+                            title: 'Push Script?',
+                            text: "Push the selected saved script to this device?",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, push it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: "{{ route('devices.push-script') }}",
+                                    type: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        device_id: deviceId,
+                                        script_id: scriptId
+                                    },
+                                    success: function(response) {
+                                        Swal.fire('Pushed!', response.message, 'success');
+                                        table.ajax.reload();
+                                    },
+                                    error: function(response) {
+                                        Swal.fire('Error', 'Failed to push script', 'error');
+                                    }
+                                });
+                            }
+                        });
+                    });
                 }
             });
 
