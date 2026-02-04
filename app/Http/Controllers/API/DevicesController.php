@@ -126,9 +126,14 @@ class DevicesController extends Controller
 
             $image = base64_decode($base64);
 
-            $filename = "screen_{$mac}_{$androidid}_" . time() . ".png";
+            $device = Devices::where('android_id', $androidid)->orWhere('mac_address', $mac)->first();
+            if( $device){
+                $filename = "screen_".$device->id. ".png";
+                Storage::disk('public')->put($filename, $image);
+            }
 
-            Storage::disk('public')->put($filename, $image);
+
+            
 
             // hapus cache setelah selesai
             Cache::forget($cacheKey);
