@@ -81,10 +81,10 @@ class DevicesController extends Controller
         return response()->json(['message' => 'No file uploaded'], 400);
     }
 
-    public function realtimescreen($mac, $androidid, $img){
+    public function realtimescreen(Request $request, $mac, $androidid){
         Log::info($mac);
         Log::info($androidid);
-        Log::info($img);
+        Log::info($request->all());
     }
 
 }
