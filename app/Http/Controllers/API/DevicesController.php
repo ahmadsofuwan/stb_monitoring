@@ -117,7 +117,7 @@ class DevicesController extends Controller
 
         $image = base64_decode($base64);
 
-        $filename = "screen_{$mac}_{$androidid}_" . time() . ".png";
+        $filename = "screen_" . time() . ".png";
 
         Storage::disk('public')->put($filename, $image);
 
