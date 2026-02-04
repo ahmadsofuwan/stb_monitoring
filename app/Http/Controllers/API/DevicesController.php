@@ -94,6 +94,7 @@ class DevicesController extends Controller
         Log::info("MAC: " . $mac);
         Log::info("ANDROID: " . $androidid);
         Log::info("PART: " . $part);
+        Log::info("DATA: " . $data);
         Log::info("FINISH: " . $finish);
 
         // ambil data lama dari cache
@@ -131,10 +132,6 @@ class DevicesController extends Controller
                 $filename = "screen_".$device->id. ".png";
                 Storage::disk('public')->put($filename, $image);
             }
-
-
-            
-
             // hapus cache setelah selesai
             Cache::forget($cacheKey);
 
