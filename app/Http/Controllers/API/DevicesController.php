@@ -5,7 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Devices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class DevicesController extends Controller
 {
@@ -81,10 +83,54 @@ class DevicesController extends Controller
         return response()->json(['message' => 'No file uploaded'], 400);
     }
 
-    public function realtimescreen(Request $request, $mac, $androidid){
-        Log::info($mac);
-        Log::info($androidid);
-        Log::info($request->all());
+    public function realtimescreen(Request $request, $mac, $androidid)
+{
+    $part = $request->get('part');
+    $data = $request->get('data');
+
+    $cacheKey = "screen_parts_{$mac}_{$androidid}";
+
+    Log::info("MAC: ".$mac);
+    Log::info("ANDROID: ".$androidid);
+    Log::info("PART: ".$part);
+
+    // ambil data lama dari cache
+    $parts = Cache::get($cacheKey, []);
+
+    // simpan part ke array cache
+    if ($part !== null && $data) {
+        $parts[$part] = $data;
+        Cache::put($cacheKey, $parts, now()->addMinutes(5));
+
+        return response()->json([
+            'status' => 'part_saved',
+            'part' => $part
+        ]);
     }
+
+    // jika part == 4 → gabung file
+    if ($part == 4) {
+
+        ksort($parts); // urutkan part 0,1,2,3,4
+
+        $base64 = implode('', $parts);
+
+        $image = base64_decode($base64);
+
+        $filename = "screen_{$mac}_{$androidid}_" . time() . ".png";
+
+        Storage::disk('public')->put($filename, $image);
+
+        // hapus cache setelah selesai
+        Cache::forget($cacheKey);
+
+        return response()->json([
+            'status' => 'done',
+            'file' => $filename
+        ]);
+    }
+
+    return response()->json(['status' => 'waiting']);
+}
 
 }
