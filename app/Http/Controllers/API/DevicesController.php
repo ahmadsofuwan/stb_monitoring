@@ -83,54 +83,64 @@ class DevicesController extends Controller
         return response()->json(['message' => 'No file uploaded'], 400);
     }
 
-    public function realtimescreen(Request $request, $mac, $androidid)
-{
-    $part = $request->get('part');
-    $data = $request->get('data');
+  public function realtimescreen(Request $request, $mac, $androidid)
+    {
+        $part   = $request->get('part');
+        $data   = $request->get('data');
+        $finish = $request->get('finish');
 
-    $cacheKey = "screen_parts_{$mac}_{$androidid}";
+        $cacheKey = "screen_parts_{$mac}_{$androidid}";
 
-    Log::info("MAC: ".$mac);
-    Log::info("ANDROID: ".$androidid);
-    Log::info("PART: ".$part);
+        Log::info("MAC: " . $mac);
+        Log::info("ANDROID: " . $androidid);
+        Log::info("PART: " . $part);
+        Log::info("FINISH: " . $finish);
 
-    // ambil data lama dari cache
-    $parts = Cache::get($cacheKey, []);
+        // ambil data lama dari cache
+        $parts = Cache::get($cacheKey, []);
 
-    // simpan part ke array cache
-    if ($part !== null && $data) {
-        $parts[$part] = $data;
-        Cache::put($cacheKey, $parts, now()->addMinutes(5));
+        // simpan part ke cache
+        if ($part !== null && $data) {
+            $parts[$part] = urldecode($data); // penting
+            Cache::put($cacheKey, $parts, now()->addMinutes(5));
 
-        return response()->json([
-            'status' => 'part_saved',
-            'part' => $part
-        ]);
+            return response()->json([
+                'status' => 'part_saved',
+                'part'   => $part
+            ]);
+        }
+
+        // jika finish = 1 → gabung semua part
+        if ($finish == 1) {
+
+            if (empty($parts)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'no parts found'
+                ], 400);
+            }
+
+            ksort($parts); // urutkan part 0,1,2,...
+
+            $base64 = implode('', $parts);
+
+            $image = base64_decode($base64);
+
+            $filename = "screen_{$mac}_{$androidid}_" . time() . ".png";
+
+            Storage::disk('public')->put($filename, $image);
+
+            // hapus cache setelah selesai
+            Cache::forget($cacheKey);
+
+            return response()->json([
+                'status' => 'done',
+                'file'   => $filename
+            ]);
+        }
+
+        return response()->json(['status' => 'waiting']);
     }
 
-    // jika part == 4 → gabung file
-    if ($part == 4) {
-
-        ksort($parts); // urutkan part 0,1,2,3,4
-
-        $base64 = implode('', $parts);
-
-        $image = base64_decode($base64);
-
-        $filename = "screen_" . time() . ".png";
-
-        Storage::disk('public')->put($filename, $image);
-
-        // hapus cache setelah selesai
-        Cache::forget($cacheKey);
-
-        return response()->json([
-            'status' => 'done',
-            'file' => $filename
-        ]);
-    }
-
-    return response()->json(['status' => 'waiting']);
-}
 
 }
