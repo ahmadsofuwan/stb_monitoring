@@ -18,6 +18,8 @@ Route::post('/devices/push-script', [App\Http\Controllers\DevicesController::cla
 Route::resource('/scripts', App\Http\Controllers\ScriptController::class);
 Route::get('/devices/{id}/screenshot', [App\Http\Controllers\DevicesController::class, 'takeScreenshot'])->name('devices.screenshot');
 Route::get('/devices/{id}/show-screenshots', [App\Http\Controllers\DevicesController::class, 'showScreenshots'])->name('devices.show-screenshots');
+Route::get('/devices/{id}/remote', [App\Http\Controllers\DevicesController::class, 'remote'])->name('devices.remote');
+Route::post('/devices/remote-command', [App\Http\Controllers\DevicesController::class, 'sendRemoteCommand'])->name('devices.remote-command');
 
 
 Route::get('/', function () {

@@ -31,6 +31,7 @@
                         <table id="dataTable" class="table-striped table-bordered table">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" id="selectAll" class="form-check-input"></th>
                                     <th><input type="text" class="form-control" placeholder="Search Android Id"></th>
                                     <th><input type="text" class="form-control" placeholder="Search Mac Address"></th>
                                     <th><input type="text" class="form-control" placeholder="Search Status"></th>
@@ -38,6 +39,7 @@
                                     <th></th>
                                 </tr>
                                 <tr>
+                                    <th></th>
                                     <th>Android Id</th>
                                     <th>Mac Address</th>
                                     <th>Status</th>
@@ -69,6 +71,7 @@
                         <form class="row g-3" id="form" action="{{ route('devices.store') }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
+                            <input type="hidden" name="device_ids" id="selectedDeviceIds">
                             <div class="col-md-12">
                                 <label class="form-label">Saved Script (Optional)</label>
                                 <select class="form-select mb-3" id="savedScriptSelect">
@@ -121,7 +124,14 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('devices.index') }}",
-                columns: [{
+                columns: [
+                    {
+                        data: 'checkbox',
+                        name: 'checkbox',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
                         data: 'android_id',
                         name: 'android_id'
                     },
@@ -307,10 +317,27 @@
             table.buttons().container()
                 .appendTo('#dataTable_wrapper .col-md-6:eq(0)');
             $("#add").click(function() {
+                var selected = [];
+                $('.device-checkbox:checked').each(function() {
+                    selected.push($(this).val());
+                });
+
+                if (selected.length > 0) {
+                    $('#selectedDeviceIds').val(selected.join(','));
+                    $('#modalAdd .text-primary').text('Push Script to ' + selected.length + ' Selected Devices');
+                } else {
+                    $('#selectedDeviceIds').val('');
+                    $('#modalAdd .text-primary').text('Push Script to All Devices');
+                }
+
                 $("#form").attr('action', "{{ route('devices.store') }}");
                 $("input[name='_method']").remove();
                 $('#modalAdd').modal('show');
-            })
+            });
+
+            $('#selectAll').click(function() {
+                $('.device-checkbox').prop('checked', this.checked);
+            });
 
             $('#dataTable thead input').on('keyup change', function() {
                 table.column($(this).parent().index())

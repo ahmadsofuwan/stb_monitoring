@@ -22,6 +22,9 @@ class DevicesController extends Controller
             $data = Devices::latest();
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('checkbox', function ($row) {
+                    return '<input type="checkbox" class="form-check-input device-checkbox" value="' . encrypt($row->id) . '">';
+                })
                 ->addColumn('action', function ($row) {
                     $btn = '<div class="btn-group">';
                     $btn .= '<button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">Action <i class="bx bx-chevron-down"></i></button>';
@@ -38,12 +41,13 @@ class DevicesController extends Controller
                     $btn .= '<div class="dropdown-divider"></div>';
                     $btn .= '<a class="dropdown-item take-screenshot" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">Take Screenshot</a>';
                     $btn .= '<a class="dropdown-item view-screenshots" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">View Screenshots</a>';
+                    $btn .= '<a class="dropdown-item" href="' . route('devices.remote', encrypt($row->id)) . '">Remote Control</a>';
                     $btn .= '<div class="dropdown-divider"></div>';
                     $btn .= '<a class="dropdown-item delete text-danger" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">Delete</a>';
                     $btn .= '</div></div>';
                     return $btn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'checkbox'])
                 ->make(true);
         }
         $scripts = Script::all();
@@ -75,10 +79,24 @@ class DevicesController extends Controller
 
     public function store(Request $request)
     {
-        Devices::whereNotNull('id')->update([
-            'script' => $request->script,
-        ]);
-        Alert::success('Success', 'Device updated successfully');
+        $deviceIds = $request->input('device_ids');
+
+        if ($deviceIds) {
+            $ids = array_map(function($id) {
+                return decrypt($id);
+            }, explode(',', $deviceIds));
+
+            Devices::whereIn('id', $ids)->update([
+                'script' => $request->script,
+            ]);
+            Alert::success('Success', 'Selected devices updated successfully');
+        } else {
+            Devices::whereNotNull('id')->update([
+                'script' => $request->script,
+            ]);
+            Alert::success('Success', 'All devices updated successfully');
+        }
+        
         return redirect()->route('devices.index');
     }
 
@@ -132,5 +150,33 @@ class DevicesController extends Controller
             });
             
         return response()->json($screenshots);
+    }
+
+    public function remote(string $id)
+    {
+        $device = Devices::find(decrypt($id));
+        $latestScreenshot = Screenshot::where('device_id', $device->id)->latest()->first();
+        return view('devices.remote', compact('device', 'latestScreenshot'));
+    }
+
+    public function sendRemoteCommand(Request $request)
+    {
+        $device = Devices::find(decrypt($request->device_id));
+        $command = $request->command;
+        $type = $request->input('type', 'key'); // 'key' or 'text'
+
+        if ($type == 'text') {
+            $script = "input text \"" . str_replace('"', '\"', $command) . "\"";
+        } else {
+            $script = "input keyevent $command";
+        }
+
+        $device->update([
+            'script' => $script,
+        ]);
+
+        return response()->json([
+            'message' => 'Command sent successfully',
+        ]);
     }
 }

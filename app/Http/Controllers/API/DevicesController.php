@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Devices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DevicesController extends Controller
 {
@@ -37,8 +38,7 @@ class DevicesController extends Controller
        
        
 
-       return response($script, 200)
-       ->header('Content-Type', 'text/plain');
+       return response($script, 200)->header('Content-Type', 'text/plain');
     }
 
     public function storeScreenshot(Request $request)
@@ -80,4 +80,11 @@ class DevicesController extends Controller
 
         return response()->json(['message' => 'No file uploaded'], 400);
     }
+
+    public function realtimescreen(Request $request, $mac, $androidid){
+        Log::info($mac);
+        Log::info($androidid);
+        Log::info($request->all());
+    }
+
 }
