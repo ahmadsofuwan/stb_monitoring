@@ -70,9 +70,15 @@
                             enctype="multipart/form-data">
                             @csrf
                             <div class="col-md-12">
-                                <label for="inputLastName" class="form-label">Script</label>
-                                <textarea class="form-control" name="script"
-                                    value="{{ old('script') }}"></textarea>
+                                <label class="form-label">Saved Script (Optional)</label>
+                                <select class="form-select mb-3" id="savedScriptSelect">
+                                    <option value="">-- Select Saved Script --</option>
+                                    @foreach($scripts as $script)
+                                        <option value="{{ $script->content }}">{{ $script->name }}</option>
+                                    @endforeach
+                                </select>
+                                <label for="inputLastName" class="form-label">Script Content</label>
+                                <textarea class="form-control" name="script" id="scriptContent">{{ old('script') }}</textarea>
                                 @error('script')
                                     <div class="text-danger">{{ $message }}</div>
                                 @enderror
@@ -85,6 +91,22 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalViewScreenshots" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Device Screenshots</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="screenshotList" class="row">
+                        <!-- Screenshots will be loaded here -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -235,6 +257,50 @@
                             }
                         });
                     });
+
+                    $(document).on('click', '.take-screenshot', function() {
+                        var id = $(this).data('id');
+                        $.ajax({
+                            url: "{{ route('devices.screenshot', '') }}/" + id,
+                            type: 'GET',
+                            success: function(response) {
+                                Swal.fire('Requested!', response.message, 'success');
+                            },
+                            error: function(response) {
+                                Swal.fire('Error', 'Failed to request screenshot', 'error');
+                            }
+                        });
+                    });
+
+                    $(document).on('click', '.view-screenshots', function() {
+                        var id = $(this).data('id');
+                        $('#screenshotList').html('<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+                        $('#modalViewScreenshots').modal('show');
+                        
+                        $.ajax({
+                            url: "{{ route('devices.show-screenshots', '') }}/" + id,
+                            type: 'GET',
+                            success: function(response) {
+                                var html = '<div class="row g-3">';
+                                if (response.length == 0) {
+                                    html = '<div class="alert alert-info">No screenshots found for this device.</div>';
+                                } else {
+                                    $.each(response, function(i, item) {
+                                        html += '<div class="col-md-4">';
+                                        html += '<div class="card">';
+                                        html += '<img src="{{ asset("screenshots") }}/' + item.filename + '" class="card-img-top" alt="Screenshot">';
+                                        html += '<div class="card-body p-2">';
+                                        html += '<p class="card-text small mb-0">' + (item.created_at || 'Just now') + '</p>';
+                                        html += '</div>';
+                                        html += '</div>';
+                                        html += '</div>';
+                                    });
+                                    html += '</div>';
+                                }
+                                $('#screenshotList').html(html);
+                            }
+                        });
+                    });
                 }
             });
 
@@ -250,6 +316,15 @@
                 table.column($(this).parent().index())
                     .search(this.value)
                     .draw();
+            });
+
+            $('#savedScriptSelect').change(function() {
+                var content = $(this).val();
+                if (content) {
+                    $('#scriptContent').val(content);
+                } else {
+                    $('#scriptContent').val('');
+                }
             });
 
         });

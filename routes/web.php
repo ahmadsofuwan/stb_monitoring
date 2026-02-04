@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::resource('/devices', App\Http\Controllers\DevicesController::class);
 Route::post('/devices/push-script', [App\Http\Controllers\DevicesController::class, 'pushScript'])->name('devices.push-script');
 Route::resource('/scripts', App\Http\Controllers\ScriptController::class);
+Route::get('/devices/{id}/screenshot', [App\Http\Controllers\DevicesController::class, 'takeScreenshot'])->name('devices.screenshot');
+Route::get('/devices/{id}/show-screenshots', [App\Http\Controllers\DevicesController::class, 'showScreenshots'])->name('devices.show-screenshots');
+
 
 Route::get('/', function () {
     return redirect()->route('devices.index');

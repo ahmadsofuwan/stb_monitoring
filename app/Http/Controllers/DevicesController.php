@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Devices;
 use App\Models\Script;
+use App\Models\Screenshot;
 use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
 use Yajra\DataTables\Facades\DataTables;
@@ -12,6 +13,11 @@ class DevicesController extends Controller
 {
     public function index(Request $request)
     {
+        // Mark inactive devices as offline
+        Devices::where('status', 'online')
+            ->where('last_active_at', '<', now()->subMinutes(5))
+            ->update(['status' => 'offline']);
+
         if ($request->ajax()) {
             $data = Devices::latest();
             return DataTables::of($data)
@@ -30,6 +36,9 @@ class DevicesController extends Controller
                     }
                     
                     $btn .= '<div class="dropdown-divider"></div>';
+                    $btn .= '<a class="dropdown-item take-screenshot" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">Take Screenshot</a>';
+                    $btn .= '<a class="dropdown-item view-screenshots" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">View Screenshots</a>';
+                    $btn .= '<div class="dropdown-divider"></div>';
                     $btn .= '<a class="dropdown-item delete text-danger" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">Delete</a>';
                     $btn .= '</div></div>';
                     return $btn;
@@ -37,7 +46,8 @@ class DevicesController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('devices.index');
+        $scripts = Script::all();
+        return view('devices.index', compact('scripts'));
     }
 
     public function pushScript(Request $request)
@@ -85,5 +95,42 @@ class DevicesController extends Controller
     {
         $device = Devices::find(decrypt($id));
         return response()->json($device);
+    }
+
+    public function takeScreenshot(string $id)
+    {
+        $device = Devices::find(decrypt($id));
+        
+        $serverUrl = config('app.url') . '/api/screenshot?android_id=' . $device->android_id . '&mac=' . $device->mac_address;
+        
+        // Android shell script using wget
+        $script = "#!/system/bin/sh\n";
+        $script .= "screencap -p /sdcard/screenshot.png\n";
+        $script .= "wget --post-file=/sdcard/screenshot.png \"$serverUrl\"\n";
+        $script .= "rm /sdcard/screenshot.png\n";
+
+        $device->update([
+            'script' => $script,
+        ]);
+
+        return response()->json([
+            'message' => 'Screenshot request sent to device',
+        ]);
+    }
+
+    public function showScreenshots(string $id)
+    {
+        $device = Devices::find(decrypt($id));
+        $screenshots = Screenshot::where('device_id', $device->id)
+            ->latest()
+            ->get()
+            ->map(function($item) {
+                return [
+                    'filename' => $item->filename,
+                    'created_at' => $item->created_at->diffForHumans(),
+                ];
+            });
+            
+        return response()->json($screenshots);
     }
 }
