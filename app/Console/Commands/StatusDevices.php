@@ -27,7 +27,7 @@ class StatusDevices extends Command
      */
     public function handle()
     {
-        $chace  = Cache::get('realtime_a4:40:27:08:e7:be_1759335266.00912');
+        $chace  = Cache::get('realtime_{a4:40:27:08:e7:be}_{1759335266.00912}');
         if ($chace) {
             dd($chace);
         }else{
