@@ -80,6 +80,21 @@
                         <button class="btn btn-primary" id="sendTextBtn">Send Text</button>
                     </div>
 
+                    <div class="card bg-light mb-4">
+                        <div class="card-body p-3">
+                            <h6 class="mb-3">Push Saved Script</h6>
+                            <div class="input-group">
+                                <select id="scriptSelect" class="form-select">
+                                    <option value="">-- Select Script --</option>
+                                    @foreach($scripts as $script)
+                                        <option value="{{ encrypt($script->id) }}">{{ $script->title }}</option>
+                                    @endforeach
+                                </select>
+                                <button class="btn btn-success" id="pushScriptBtn">Push Script</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-pad mb-4">
                         <div></div>
                         <button class="btn btn-secondary remote-btn" data-key="19"><i class="bx bx-chevron-up"></i></button>
@@ -238,6 +253,39 @@
             }
         });
 
+        // Push Script Handling
+        $('#pushScriptBtn').click(function() {
+            const scriptId = $('#scriptSelect').val();
+            if (!scriptId) {
+                Swal.fire('Warning', 'Please select a script first', 'warning');
+                return;
+            }
+
+            $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+            $.ajax({
+                url: "{{ route('devices.push-script') }}",
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    device_id: deviceId,
+                    script_id: scriptId
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pushed',
+                        text: response.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    updateStatus(); // Refresh monitor
+                },
+                complete: function() {
+                    $('#pushScriptBtn').prop('disabled', false).text('Push Script');
+                }
+            });
+        });
 
     });
 </script>
