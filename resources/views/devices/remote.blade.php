@@ -68,13 +68,10 @@
                     <div class="screenshot-container shadow-sm mb-4">
                         <img src="{{ asset('storage/screen_' . $device->id . '.png') }}" id="latestScreenshot" alt="Waiting for Live Feed..." onerror="this.src='https://placehold.co/600x400?text=Waiting+for+Live+Feed...'">
                         
-                        <div class="position-absolute top-0 end-0 m-2 d-flex gap-2">
+                        <div class="position-absolute top-0 end-0 m-2">
                             <span class="badge bg-danger pulse-danger d-flex align-items-center" id="liveBadge">
                                 <i class="bx bxs-circle me-1"></i> LIVE
                             </span>
-                            <button class="btn btn-sm btn-dark" id="refreshScreenshot">
-                                <i class="bx bx-refresh"></i> Refresh
-                            </button>
                         </div>
                     </div>
 
@@ -124,7 +121,7 @@
                 screenImg.attr('src', screenUrl + '?t=' + timestamp);
             };
             newImg.src = screenUrl + '?t=' + timestamp;
-        }, 1000);
+        }, 100);
 
         function sendCommand(command, type = 'key') {
             $.ajax({
@@ -161,30 +158,7 @@
             }
         });
 
-        $('#refreshScreenshot').click(function() {
-            $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-            
-            $.ajax({
-                url: "{{ route('devices.screenshot', encrypt($device->id)) }}",
-                type: 'GET',
-                success: function(response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Requested',
-                        text: 'Live feed requested. It should appear automatically.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                    setTimeout(() => {
-                        $('#refreshScreenshot').prop('disabled', false).html('<i class="bx bx-refresh"></i> Refresh');
-                    }, 2000);
-                },
-                error: function() {
-                    Swal.fire('Error', 'Failed to request screenshot', 'error');
-                    $('#refreshScreenshot').prop('disabled', false).html('<i class="bx bx-refresh"></i> Refresh');
-                }
-            });
-        });
+
     });
 </script>
 @endsection
