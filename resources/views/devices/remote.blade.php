@@ -120,8 +120,8 @@
             
             newImg.onload = function() {
                 screenImg.attr('src', screenUrl + '?t=' + timestamp);
-                // Wait 100ms AFTER successful load before fetching again
-                setTimeout(updateScreenshot, 100);
+                // Immediately request next frame for maximum real-time speed
+                setTimeout(updateScreenshot, 0);
             };
             
             newImg.onerror = function() {
