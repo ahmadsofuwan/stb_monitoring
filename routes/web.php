@@ -20,6 +20,7 @@ Route::get('/devices/{id}/screenshot', [App\Http\Controllers\DevicesController::
 Route::get('/devices/{id}/show-screenshots', [App\Http\Controllers\DevicesController::class, 'showScreenshots'])->name('devices.show-screenshots');
 Route::get('/devices/{id}/remote', [App\Http\Controllers\DevicesController::class, 'remote'])->name('devices.remote');
 Route::post('/devices/remote-command', [App\Http\Controllers\DevicesController::class, 'sendRemoteCommand'])->name('devices.remote-command');
+Route::get('/devices/{id}/remote-status', [App\Http\Controllers\DevicesController::class, 'getRemoteStatus'])->name('devices.remote-status');
 
 Route::group(['prefix' => 'file-share'], function() {
     Route::get('/', [App\Http\Controllers\FileShareController::class, 'index'])->name('file-share.index');

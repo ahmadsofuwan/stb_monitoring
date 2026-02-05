@@ -99,6 +99,43 @@
                         <button class="btn btn-outline-dark remote-btn btn-sm mx-1" data-key="3"><i class="bx bx-home"></i> Home</button>
                         <button class="btn btn-outline-secondary remote-btn btn-sm mx-1" data-key="82"><i class="bx bx-menu"></i> Menu</button>
                     </div>
+
+                    <!-- Command Monitor Section -->
+                    <div class="mt-5">
+                        <h6 class="mb-3"><i class="bx bx-terminal me-2"></i> Command Monitor</h6>
+                        
+                        <div class="card bg-dark text-white mb-3">
+                            <div class="card-header py-1 border-secondary">
+                                <small class="text-uppercase fw-bold text-success">Current Script (In Cache)</small>
+                            </div>
+                            <div class="card-body py-2">
+                                <code id="currentScript" class="text-success small">Waiting for script...</code>
+                            </div>
+                        </div>
+
+                        <div class="card bg-dark text-white">
+                            <div class="card-header py-1 border-secondary">
+                                <small class="text-uppercase fw-bold text-info">Recent History</small>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-sm mb-0 small">
+                                        <thead>
+                                            <tr>
+                                                <th class="ps-3" style="width: 80px;">Time</th>
+                                                <th>Script / Command</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="commandHistory">
+                                            <tr>
+                                                <td colspan="2" class="text-center py-3 text-muted">No history yet</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -134,6 +171,37 @@
 
         // Start the loop
         updateScreenshot();
+
+        // Update status and history every 2 seconds
+        function updateStatus() {
+            $.ajax({
+                url: "{{ route('devices.remote-status', encrypt($device->id)) }}",
+                type: 'GET',
+                success: function(data) {
+                    // Update current script
+                    if (data.current_script) {
+                        $('#currentScript').text(data.current_script);
+                    } else {
+                        $('#currentScript').html('<span class="text-muted italic">Device is idle (Cache empty)</span>');
+                    }
+
+                    // Update history
+                    if (data.history && data.history.length > 0) {
+                        let html = '';
+                        data.history.forEach(item => {
+                            html += `<tr>
+                                <td class="ps-3 text-info">${item.time}</td>
+                                <td><code>${item.command}</code></td>
+                            </tr>`;
+                        });
+                        $('#commandHistory').html(html);
+                    }
+                }
+            });
+        }
+
+        setInterval(updateStatus, 2000);
+        updateStatus(); // Initial call
 
         function sendCommand(command, type = 'key') {
             $.ajax({

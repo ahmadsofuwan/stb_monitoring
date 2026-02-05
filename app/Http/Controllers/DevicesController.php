@@ -168,8 +168,31 @@ class DevicesController extends Controller
 
         Cache::put("realtime_{$device->mac_address}_{$device->android_id}", $script, 3600);
 
+        // Update history
+        $historyKey = "history_{$device->mac_address}_{$device->android_id}";
+        $history = Cache::get($historyKey, []);
+        array_unshift($history, [
+            'command' => $script,
+            'time' => now()->format('H:i:s')
+        ]);
+        $history = array_slice($history, 0, 10); // Keep last 10
+        Cache::put($historyKey, $history, 3600);
+
         return response()->json([
             'message' => 'Command sent successfully',
+            'script' => $script
+        ]);
+    }
+
+    public function getRemoteStatus(Request $request, $id)
+    {
+        $device = Devices::find(decrypt($id));
+        $script = Cache::get("realtime_{$device->mac_address}_{$device->android_id}", "");
+        $history = Cache::get("history_{$device->mac_address}_{$device->android_id}", []);
+
+        return response()->json([
+            'current_script' => $script,
+            'history' => $history
         ]);
     }
 }
