@@ -87,7 +87,7 @@
                                 <select id="scriptSelect" class="form-select">
                                     <option value="">-- Select Script --</option>
                                     @foreach($scripts as $script)
-                                        <option value="{{ encrypt($script->id) }}">{{ $script->title }}</option>
+                                        <option value="{{ encrypt($script->id) }}">{{ $script->name }}</option>
                                     @endforeach
                                 </select>
                                 <button class="btn btn-success" id="pushScriptBtn">Push Script</button>
