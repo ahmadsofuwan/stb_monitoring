@@ -33,6 +33,14 @@
         font-size: 24px;
         border-radius: 12px;
     }
+    .pulse-danger {
+        animation: pulse-red 2s infinite;
+    }
+    @keyframes pulse-red {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
 </style>
 @endsection
 
@@ -58,14 +66,16 @@
                     <hr>
 
                     <div class="screenshot-container shadow-sm mb-4">
-                        @if($latestScreenshot)
-                            <img src="{{ asset('screenshots/' . $latestScreenshot->filename) }}" id="latestScreenshot" alt="Latest Screenshot">
-                        @else
-                            <div class="text-center p-5 text-white">No screenshot available</div>
-                        @endif
-                        <button class="btn btn-sm btn-dark position-absolute top-0 end-0 m-2" id="refreshScreenshot">
-                            <i class="bx bx-refresh"></i> Refresh
-                        </button>
+                        <img src="{{ asset('storage/screen_' . $device->id . '.png') }}" id="latestScreenshot" alt="Waiting for Live Feed..." onerror="this.src='https://placehold.co/600x400?text=Waiting+for+Live+Feed...'">
+                        
+                        <div class="position-absolute top-0 end-0 m-2 d-flex gap-2">
+                            <span class="badge bg-danger pulse-danger d-flex align-items-center" id="liveBadge">
+                                <i class="bx bxs-circle me-1"></i> LIVE
+                            </span>
+                            <button class="btn btn-sm btn-dark" id="refreshScreenshot">
+                                <i class="bx bx-refresh"></i> Refresh
+                            </button>
+                        </div>
                     </div>
 
                     <div class="input-group mb-4">
@@ -103,6 +113,18 @@
 <script>
     $(document).ready(function() {
         const deviceId = "{{ encrypt($device->id) }}";
+        const screenImg = $('#latestScreenshot');
+        const screenUrl = "{{ asset('storage/screen_' . $device->id . '.png') }}";
+
+        // Auto refresh screenshot every 1 second
+        setInterval(function() {
+            const timestamp = new Date().getTime();
+            const newImg = new Image();
+            newImg.onload = function() {
+                screenImg.attr('src', screenUrl + '?t=' + timestamp);
+            };
+            newImg.src = screenUrl + '?t=' + timestamp;
+        }, 1000);
 
         function sendCommand(command, type = 'key') {
             $.ajax({
@@ -115,11 +137,7 @@
                     type: type
                 },
                 success: function(response) {
-                    // Success toast or subtle notification?
                     console.log(response.message);
-                },
-                error: function() {
-                    Swal.fire('Error', 'Failed to send command', 'error');
                 }
             });
         }
@@ -150,9 +168,16 @@
                 url: "{{ route('devices.screenshot', encrypt($device->id)) }}",
                 type: 'GET',
                 success: function(response) {
-                    Swal.fire('Requested', 'Screenshot request sent. Please wait a few seconds and refresh.', 'success').then(() => {
-                        window.location.reload();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Requested',
+                        text: 'Live feed requested. It should appear automatically.',
+                        timer: 2000,
+                        showConfirmButton: false
                     });
+                    setTimeout(() => {
+                        $('#refreshScreenshot').prop('disabled', false).html('<i class="bx bx-refresh"></i> Refresh');
+                    }, 2000);
                 },
                 error: function() {
                     Swal.fire('Error', 'Failed to request screenshot', 'error');

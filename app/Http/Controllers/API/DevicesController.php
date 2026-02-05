@@ -37,9 +37,6 @@ class DevicesController extends Controller
         ]);
        }
 
-       
-       
-
        return response($script, 200)->header('Content-Type', 'text/plain');
     }
 
