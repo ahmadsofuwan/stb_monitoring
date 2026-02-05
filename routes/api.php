@@ -21,4 +21,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/devices', [App\Http\Controllers\API\DevicesController::class, 'index']);
 Route::post('/screenshot', [App\Http\Controllers\API\DevicesController::class, 'storeScreenshot']);
 Route::any('/realtime/{mac}/{androidid}', [App\Http\Controllers\API\DevicesController::class, 'realtimescreen']);
-Route::any('/status/realtime/{mac}/{androidid}', [App\Http\Controllers\API\DevicesController::class, 'realtimescreen']);
+Route::any('/status/realtime/{mac}/{androidid}', [App\Http\Controllers\API\DevicesController::class, 'statusrealtime']);
