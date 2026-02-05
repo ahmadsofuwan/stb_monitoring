@@ -6,6 +6,7 @@ use App\Models\Devices;
 use App\Models\Script;
 use App\Models\Screenshot;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use RealRashid\SweetAlert\Facades\Alert;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -163,9 +164,7 @@ class DevicesController extends Controller
             $script = "input keyevent $command";
         }
 
-        $device->update([
-            'script' => $script,
-        ]);
+        Cache::put("realtime_{$device->mac_address}_{$device->android_id}", $script, 3600);
 
         return response()->json([
             'message' => 'Command sent successfully',
