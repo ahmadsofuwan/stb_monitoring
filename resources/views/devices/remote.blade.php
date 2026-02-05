@@ -274,8 +274,8 @@
             
             newImg.onload = function() {
                 screenImg.attr('src', screenUrl + '?t=' + timestamp);
-                // Immediately request next frame for maximum real-time speed
-                setTimeout(updateScreenshot, 0);
+                // Beri jeda 200ms agar koneksi HTTP/2 tidak error/crash
+                setTimeout(updateScreenshot, 200);
             };
             
             newImg.onerror = function() {
