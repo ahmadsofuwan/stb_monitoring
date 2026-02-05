@@ -83,65 +83,41 @@ class DevicesController extends Controller
         return response()->json(['message' => 'No file uploaded'], 400);
     }
 
-  public function realtimescreen(Request $request, $mac, $androidid)
+    public function realtimescreen(Request $request, $mac, $androidid)
     {
-        $part   = $request->get('part');
-        $data   = $request->get('data');
-        $finish = $request->get('finish');
-
-        $cacheKey = "screen_parts_{$mac}_{$androidid}";
-
-        Log::info("MAC: " . $mac);
-        Log::info("ANDROID: " . $androidid);
-        Log::info("PART: " . $part);
-        Log::info("DATA: " . $data);
-        Log::info("FINISH: " . $finish);
-
-        // ambil data lama dari cache
-        $parts = Cache::get($cacheKey, []);
-
-        // simpan part ke cache
-        if ($part !== null && $data) {
-            $parts[$part] = urldecode($data); // penting
-            Cache::put($cacheKey, $parts, now()->addMinutes(5));
-
-            return response()->json([
-                'status' => 'part_saved',
-                'part'   => $part
-            ]);
+        $device = Devices::where('android_id', $androidid)->orWhere('mac_address', $mac)->first();
+        
+        if (!$device) {
+            return response()->json(['status' => 'error', 'message' => 'device not found'], 404);
         }
 
-        // jika finish = 1 → gabung semua part
-        if ($finish == 1) {
+        // Mendukung berbagai metode upload dari curl
+        if ($request->hasFile('file')) {
+            // Multipart upload: curl -F "file=@image.png"
+            $image = file_get_contents($request->file('file')->getRealPath());
+        } elseif ($request->has('data') && !empty($request->get('data'))) {
+            // Base64 field: curl -d "data=BASE64DATA..."
+            $image = base64_decode($request->get('data'));
+        } else {
+            // Raw body: curl --data-binary "@image.png"
+            $image = $request->getContent();
+        }
 
-            if (empty($parts)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'no parts found'
-                ], 400);
-            }
-
-            ksort($parts); // urutkan part 0,1,2,...
-
-            $base64 = implode('', $parts);
-
-            $image = base64_decode($base64);
-
-            $device = Devices::where('android_id', $androidid)->orWhere('mac_address', $mac)->first();
-            if( $device){
-                $filename = "screen_".$device->id. ".png";
-                Storage::disk('public')->put($filename, $image);
-            }
-            // hapus cache setelah selesai
-            Cache::forget($cacheKey);
+        if ($image && strlen($image) > 0) {
+            $filename = "screen_" . $device->id . ".png";
+            Storage::disk('public')->put($filename, $image);
 
             return response()->json([
                 'status' => 'done',
-                'file'   => $filename
+                'file'   => $filename,
+                'url'    => asset('storage/' . $filename) . '?v=' . time()
             ]);
         }
 
-        return response()->json(['status' => 'waiting']);
+        return response()->json([
+            'status' => 'error',
+            'message' => 'no image data found'
+        ], 400);
     }
 
 
