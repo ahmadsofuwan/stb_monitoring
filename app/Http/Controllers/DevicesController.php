@@ -153,8 +153,9 @@ class DevicesController extends Controller
         $scripts = Script::all();
         $cacheName = "realtime_{$device->mac_address}_{$device->android_id}";
 
-        Cache::put($cacheName, "input text 123", 3600);
-
+        // Reset status stop saat halaman dibuka
+        Cache::forget("{$cacheName}_stop");
+        Cache::put($cacheName, "", 3600);
 
         return view('devices.remote', compact('device', 'latestScreenshot', 'scripts'));
     }
@@ -198,6 +199,19 @@ class DevicesController extends Controller
         return response()->json([
             'current_script' => $script,
             'history' => $history
+        ]);
+    }
+
+    public function stopRemote(Request $request)
+    {
+        $device = Devices::find(decrypt($request->device_id));
+        $cacheName = "realtime_{$device->mac_address}_{$device->android_id}";
+        
+        Cache::put("{$cacheName}_stop", true, 3600);
+        Cache::forget($cacheName);
+
+        return response()->json([
+            'message' => 'Remote stopped successfully'
         ]);
     }
 }

@@ -115,6 +115,12 @@
                         <button class="btn btn-outline-secondary remote-btn btn-sm mx-1" data-key="82"><i class="bx bx-menu"></i> Menu</button>
                     </div>
 
+                    <div class="text-center mt-4">
+                        <button class="btn btn-danger w-100" id="stopRemoteBtn">
+                            <i class="bx bx-stop-circle me-1"></i> STOP REMOTE (EXIT)
+                        </button>
+                    </div>
+
                     <!-- Command Monitor Section -->
                     <div class="mt-5">
                         <h6 class="mb-3"><i class="bx bx-terminal me-2"></i> Command Monitor</h6>
@@ -283,6 +289,41 @@
                 },
                 complete: function() {
                     $('#pushScriptBtn').prop('disabled', false).text('Push Script');
+                }
+            });
+        });
+
+        // Stop Remote Handling
+        $('#stopRemoteBtn').click(function() {
+            Swal.fire({
+                title: 'Stop Remote?',
+                text: "This will signal the device to stop receiving commands.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, Stop it!'
+            }).then((result) => {
+                if (result.value) {
+                    $.ajax({
+                        url: "{{ route('devices.stop-remote') }}",
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            device_id: deviceId
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Stopped',
+                                text: 'Remote signal stopped. Redirecting...',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = "{{ route('devices.index') }}";
+                            });
+                        }
+                    });
                 }
             });
         });
