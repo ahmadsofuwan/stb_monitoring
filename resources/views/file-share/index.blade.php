@@ -1,7 +1,7 @@
 @extends("layouts.app")
 
 @section("style")
-<link href="assets/plugins/Drag-And-Drop/dist/imageuploadify.min.css" rel="stylesheet" />
+<link href="{{ asset('assets/plugins/Drag-And-Drop/dist/imageuploadify.min.css') }}" rel="stylesheet" />
 <style>
     .file-icon {
         font-size: 2rem;
@@ -129,7 +129,7 @@
 @endsection
 
 @section("script")
-<script src="assets/plugins/Drag-And-Drop/dist/imageuploadify.min.js"></script>
+<script src="{{ asset('assets/plugins/Drag-And-Drop/dist/imageuploadify.min.js') }}"></script>
 <script>
     $(document).ready(function () {
         $('input[type="file"]').imageuploadify();
