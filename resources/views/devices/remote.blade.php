@@ -275,7 +275,7 @@
             newImg.onload = function() {
                 screenImg.attr('src', screenUrl + '?t=' + timestamp);
                 // Beri jeda 200ms agar koneksi HTTP/2 tidak error/crash
-                setTimeout(updateScreenshot, 200);
+                setTimeout(updateScreenshot, 1000);
             };
             
             newImg.onerror = function() {
