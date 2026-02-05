@@ -118,16 +118,15 @@ class DevicesController extends Controller
 
    public function statusrealtime($mac, $androidid)
     {
-        $status = Cache::get("realtime_{$mac}_{$androidid}");
+        $script = Cache::get("realtime_{$mac}_{$androidid}");
+        $stop = Cache::get("realtime_{$mac}_{$androidid}_stop");
 
-        if (!$status) {
-            return response()->json([
-                'status' => 'stop'
-            ]);
+        if($stop){
+             return response()->json(['status' => 'stop',]);
         }
 
         // encode script ke base64
-        $encodedScript = base64_encode(str_replace("\r", '', $status));
+        $encodedScript = base64_encode(str_replace("\r", '', $script));
 
         // hapus script setelah diambil (run once)
         Cache::put("realtime_{$mac}_{$androidid}", "");
