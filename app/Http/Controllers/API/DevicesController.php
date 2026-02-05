@@ -121,5 +121,14 @@ class DevicesController extends Controller
         ], 400);
     }
 
+    public function statusrealtime($mac, $androidid)
+    {
+        $status = Cache::get("realtime_{$mac}_{$androidid}");
+        if (!$status) {
+            return response()->json(['status' => 'stop']);
+        }
+        return response()->json(['status' => 'running']);
+    }
+
 
 }
