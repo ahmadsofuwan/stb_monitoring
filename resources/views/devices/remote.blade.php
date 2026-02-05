@@ -113,15 +113,27 @@
         const screenImg = $('#latestScreenshot');
         const screenUrl = "{{ asset('storage/screen_' . $device->id . '.png') }}";
 
-        // Auto refresh screenshot every 1 second
-        setInterval(function() {
+        // Auto refresh screenshot with recursive timeout (more stable than setInterval)
+        function updateScreenshot() {
             const timestamp = new Date().getTime();
             const newImg = new Image();
+            
             newImg.onload = function() {
                 screenImg.attr('src', screenUrl + '?t=' + timestamp);
+                // Wait 100ms AFTER successful load before fetching again
+                setTimeout(updateScreenshot, 100);
             };
+            
+            newImg.onerror = function() {
+                // If error occurs (file still being written by server), wait 500ms before retry
+                setTimeout(updateScreenshot, 500);
+            };
+            
             newImg.src = screenUrl + '?t=' + timestamp;
-        }, 500);
+        }
+
+        // Start the loop
+        updateScreenshot();
 
         function sendCommand(command, type = 'key') {
             $.ajax({
