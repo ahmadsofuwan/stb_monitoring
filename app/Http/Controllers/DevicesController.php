@@ -32,15 +32,7 @@ class DevicesController extends Controller
                     $btn .= '<a class="dropdown-item edit" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">Edit/Push Custom</a>';
                     $btn .= '<div class="dropdown-divider"></div>';
                     $btn .= '<h6 class="dropdown-header">Push Saved Script</h6>';
-                    
-                    $scripts = Script::all();
-                    foreach ($scripts as $script) {
-                        $btn .= '<a class="dropdown-item push-saved-script" href="javascript:void(0)" data-device-id="' . encrypt($row->id) . '" data-script-id="' . encrypt($script->id) . '">' . $script->name . '</a>';
-                    }
-                    
                     $btn .= '<div class="dropdown-divider"></div>';
-                    $btn .= '<a class="dropdown-item take-screenshot" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">Take Screenshot</a>';
-                    $btn .= '<a class="dropdown-item view-screenshots" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">View Screenshots</a>';
                     $btn .= '<a class="dropdown-item" href="' . route('devices.remote', encrypt($row->id)) . '">Remote Control</a>';
                     $btn .= '<div class="dropdown-divider"></div>';
                     $btn .= '<a class="dropdown-item delete text-danger" href="javascript:void(0)" data-id="' . encrypt($row->id) . '">Delete</a>';
