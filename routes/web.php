@@ -36,6 +36,9 @@ Route::get('/f/{slug}/download', [App\Http\Controllers\FileShareController::clas
 Route::get('/', function () {
     return redirect()->route('devices.index');
 });
+Route::get('/alert', function () {
+    return view('alert.index');
+});
 Route::get('/index', function () {
     return view('index');
 });
