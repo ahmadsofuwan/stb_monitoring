@@ -121,7 +121,7 @@
                 screenImg.attr('src', screenUrl + '?t=' + timestamp);
             };
             newImg.src = screenUrl + '?t=' + timestamp;
-        }, 100);
+        }, 500);
 
         function sendCommand(command, type = 'key') {
             $.ajax({
