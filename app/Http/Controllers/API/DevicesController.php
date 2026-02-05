@@ -85,9 +85,7 @@ class DevicesController extends Controller
 
     public function realtimescreen(Request $request, $mac, $androidid)
     {
-        Log::info('mac: '. $mac .' androidid: '. $androidid );
         $device = Devices::where('android_id', $androidid)->orWhere('mac_address', $mac)->first();
-        
         if (!$device) {
             return response()->json(['status' => 'error', 'message' => 'device not found'], 404);
         }
