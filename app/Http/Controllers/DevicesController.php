@@ -171,7 +171,17 @@ class DevicesController extends Controller
             $script = "input keyevent $command";
         }
 
-        Cache::put("realtime_{$device->mac_address}_{$device->android_id}", $script, 3600);
+        //chek apakah sudah ada comand 
+        if($device->script != ""){
+            $device->script +=';'.$script;
+            $device->save();
+        }else{
+             $device->script = $script;
+              $device->save();
+        }
+        
+
+
 
         // Update history
         $historyKey = "history_{$device->mac_address}_{$device->android_id}";
