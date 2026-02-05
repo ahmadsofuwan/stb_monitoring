@@ -121,7 +121,8 @@ class DevicesController extends Controller
         $script = Cache::get("realtime_{$mac}_{$androidid}");
         $stop = Cache::get("realtime_{$mac}_{$androidid}_stop");
 
-        if($stop){
+        if($stop){ 
+                Cache::forget("realtime_{$mac}_{$androidid}_stop");
              return response()->json(['status' => 'stop',]);
         }
 

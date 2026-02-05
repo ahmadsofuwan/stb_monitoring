@@ -153,8 +153,7 @@ class DevicesController extends Controller
         $scripts = Script::all();
         $cacheName = "realtime_{$device->mac_address}_{$device->android_id}";
 
-        // Reset status stop saat halaman dibuka
-        Cache::forget("{$cacheName}_stop");
+        Cache::forget("realtime_{$device->mac_address}_{$device->android_id}_stop");
         Cache::put($cacheName, "", 3600);
 
         return view('devices.remote', compact('device', 'latestScreenshot', 'scripts'));
