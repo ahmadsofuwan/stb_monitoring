@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Devices;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class StatusDevices extends Command
 {
@@ -26,9 +27,12 @@ class StatusDevices extends Command
      */
     public function handle()
     {
-        Devices::where('last_active_at', '<', now()->subMinutes(5))->update([
-            'status' => 'offline',
-        ]);
+        $chace  = Cache::get('realtime_a4:40:27:08:e7:be_1759335266.00912');
+        if ($chace) {
+            dd($chace);
+        }else{
+            $this->info('nothing');
+        }
     }
     
 }
