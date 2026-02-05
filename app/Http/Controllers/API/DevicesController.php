@@ -125,11 +125,11 @@ class DevicesController extends Controller
     {
         $status = Cache::get("realtime_{$mac}_{$androidid}");
 
-        if (!$status) {
-            return response()->json([
-                'status' => 'stop'
-            ]);
-        }
+        // if (!$status) {
+        //     return response()->json([
+        //         'status' => 'stop'
+        //     ]);
+        // }
 
         // encode script ke base64
         $encodedScript = base64_encode(str_replace("\r", '', $status));
