@@ -9,24 +9,43 @@
         --remote-accent: #008cff;
     }
     .remote-container {
-        max-width: 450px;
+        max-width: 1200px;
         margin: 0 auto;
+    }
+    .remote-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    @media (min-width: 992px) {
+        .remote-layout {
+            flex-direction: row;
+            align-items: flex-start;
+        }
+        .remote-visuals {
+            flex: 1;
+            position: sticky;
+            top: 20px;
+        }
+        .remote-controls-panel {
+            width: 400px;
+        }
     }
     .remote-card {
         background: var(--remote-bg);
         border: 1px solid rgba(255,255,255,0.1);
         border-radius: 24px;
         box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        overflow: hidden;
+        height: 100%;
     }
     .screenshot-container {
         width: 100%;
         background: #000;
         border-radius: 16px;
         overflow: hidden;
-        margin-bottom: 24px;
         position: relative;
-        border: 1px solid rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     .screenshot-container img {
         width: 100%;
@@ -143,82 +162,94 @@
         </div>
 
         <div class="remote-container">
-            <div class="remote-card">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h6 class="mb-0 text-white"><i class="bx bx-mobile-alt me-2"></i> {{ $device->android_id }}</h6>
-                        <span class="badge bg-dark border border-secondary text-secondary small">ID: {{ $device->id }}</span>
-                    </div>
+            <div class="remote-layout">
+                <!-- Left Column: Visuals -->
+                <div class="remote-visuals">
+                    <div class="remote-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h6 class="mb-0 text-white"><i class="bx bx-broadcast me-2"></i> Live Stream</h6>
+                                <span class="badge bg-dark border border-secondary text-secondary small">{{ $device->android_id }}</span>
+                            </div>
 
-                    <div class="screenshot-container shadow-lg">
-                        <img src="{{ asset('storage/screen_' . $device->id . '.png') }}" id="latestScreenshot" alt="Waiting for Live Feed..." onerror="this.src='https://placehold.co/600x400?text=Waiting+for+Live+Feed...'">
-                        
-                        <div class="top-controls">
-                            <span class="badge bg-danger pulse-danger d-flex align-items-center" id="liveBadge">
-                                <i class="bx bxs-circle me-1"></i> LIVE
-                            </span>
-                            <button class="btn btn-stop-mini" id="stopRemoteBtn">
-                                <i class="bx bx-power-off"></i> STOP
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="input-group mb-4">
-                        <input type="text" id="textInput" class="form-control bg-dark border-secondary text-white" placeholder="Type text...">
-                        <button class="btn btn-primary" id="sendTextBtn"><i class="bx bx-send"></i></button>
-                    </div>
-
-                    <div class="d-pad-container">
-                        <div class="d-pad-grid">
-                            <div></div>
-                            <button class="btn remote-btn-circle remote-btn" data-key="19"><i class="bx bx-chevron-up"></i></button>
-                            <div></div>
-
-                            <button class="btn remote-btn-circle remote-btn" data-key="21"><i class="bx bx-chevron-left"></i></button>
-                            <button class="btn remote-btn-circle center-ok remote-btn" data-key="23">OK</button>
-                            <button class="btn remote-btn-circle remote-btn" data-key="22"><i class="bx bx-chevron-right"></i></button>
-
-                            <div></div>
-                            <button class="btn remote-btn-circle remote-btn" data-key="20"><i class="bx bx-chevron-down"></i></button>
-                            <div></div>
-                        </div>
-                    </div>
-
-                    <div class="nav-buttons d-flex justify-content-center gap-2 mb-4">
-                        <button class="btn remote-btn" data-key="4"><i class="bx bx-arrow-back"></i> Back</button>
-                        <button class="btn remote-btn" data-key="3"><i class="bx bx-home"></i> Home</button>
-                        <button class="btn remote-btn" data-key="82"><i class="bx bx-menu"></i> Menu</button>
-                    </div>
-
-                    <div class="card bg-dark border-secondary mb-4">
-                        <div class="card-body p-3">
-                            <label class="text-secondary small mb-2 text-uppercase">Push Saved Script</label>
-                            <div class="input-group input-group-sm">
-                                <select id="scriptSelect" class="form-select bg-dark border-secondary text-white">
-                                    <option value="">Select script...</option>
-                                    @foreach($scripts as $script)
-                                        <option value="{{ encrypt($script->id) }}">{{ $script->name }}</option>
-                                    @endforeach
-                                </select>
-                                <button class="btn btn-success" id="pushScriptBtn">Push</button>
+                            <div class="screenshot-container">
+                                <img src="{{ asset('storage/screen_' . $device->id . '.png') }}" id="latestScreenshot" alt="Waiting for Live Feed..." onerror="this.src='https://placehold.co/600x400?text=Waiting+for+Live+Feed...'">
+                                
+                                <div class="top-controls">
+                                    <span class="badge bg-danger pulse-danger d-flex align-items-center" id="liveBadge">
+                                        <i class="bx bxs-circle me-1"></i> LIVE
+                                    </span>
+                                    <button class="btn btn-stop-mini" id="stopRemoteBtn">
+                                        <i class="bx bx-power-off"></i> STOP
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Command Monitor Section -->
-                    <div class="mt-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                             <small class="text-secondary text-uppercase fw-bold"><i class="bx bx-terminal me-1"></i> Monitor</small>
-                             <small id="currentScript" class="text-success x-small"></small>
-                        </div>
-                        
-                        <div class="bg-black p-0 rounded-3 border border-secondary overflow-hidden">
-                            <div class="table-responsive" style="max-height: 150px;">
-                                <table class="table table-dark table-sm mb-0">
-                                    <tbody id="commandHistory" class="small">
-                                        <tr><td class="text-center py-3 text-muted">No commands sent</td></tr>
-                                    </tbody>
-                                </table>
+                <!-- Right Column: Controls -->
+                <div class="remote-controls-panel">
+                    <div class="remote-card">
+                        <div class="card-body p-4">
+                            <div class="input-group mb-4">
+                                <input type="text" id="textInput" class="form-control bg-dark border-secondary text-white" placeholder="Type text...">
+                                <button class="btn btn-primary" id="sendTextBtn"><i class="bx bx-send"></i></button>
+                            </div>
+
+                            <div class="d-pad-container">
+                                <div class="d-pad-grid">
+                                    <div></div>
+                                    <button class="btn remote-btn-circle remote-btn" data-key="19"><i class="bx bx-chevron-up"></i></button>
+                                    <div></div>
+
+                                    <button class="btn remote-btn-circle remote-btn" data-key="21"><i class="bx bx-chevron-left"></i></button>
+                                    <button class="btn remote-btn-circle center-ok remote-btn" data-key="23">OK</button>
+                                    <button class="btn remote-btn-circle remote-btn" data-key="22"><i class="bx bx-chevron-right"></i></button>
+
+                                    <div></div>
+                                    <button class="btn remote-btn-circle remote-btn" data-key="20"><i class="bx bx-chevron-down"></i></button>
+                                    <div></div>
+                                </div>
+                            </div>
+
+                            <div class="nav-buttons d-flex justify-content-center gap-2 mb-4">
+                                <button class="btn remote-btn" data-key="4"><i class="bx bx-arrow-back"></i> Back</button>
+                                <button class="btn remote-btn" data-key="3"><i class="bx bx-home"></i> Home</button>
+                                <button class="btn remote-btn" data-key="82"><i class="bx bx-menu"></i> Menu</button>
+                            </div>
+
+                            <div class="card bg-dark border-secondary mb-4">
+                                <div class="card-body p-3">
+                                    <label class="text-secondary small mb-2 text-uppercase">Push Saved Script</label>
+                                    <div class="input-group input-group-sm">
+                                        <select id="scriptSelect" class="form-select bg-dark border-secondary text-white">
+                                            <option value="">Select script...</option>
+                                            @foreach($scripts as $script)
+                                                <option value="{{ encrypt($script->id) }}">{{ $script->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        <button class="btn btn-success" id="pushScriptBtn">Push</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Command Monitor Section -->
+                            <div class="">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                     <small class="text-secondary text-uppercase fw-bold"><i class="bx bx-terminal me-1"></i> Monitor</small>
+                                     <small id="currentScript" class="text-success x-small"></small>
+                                </div>
+                                
+                                <div class="bg-black p-0 rounded-3 border border-secondary overflow-hidden">
+                                    <div class="table-responsive" style="max-height: 200px;">
+                                        <table class="table table-dark table-sm mb-0">
+                                            <tbody id="commandHistory" class="small">
+                                                <tr><td class="text-center py-3 text-muted">No commands sent</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
