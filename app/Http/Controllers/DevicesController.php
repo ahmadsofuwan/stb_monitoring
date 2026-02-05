@@ -147,8 +147,10 @@ class DevicesController extends Controller
 
     public function remote(string $id)
     {
+
         $device = Devices::find(decrypt($id));
         $latestScreenshot = Screenshot::where('device_id', $device->id)->latest()->first();
+        Cache::put("realtime_{$device->mac_address}_{$device->android_id}", "", 3600);
         return view('devices.remote', compact('device', 'latestScreenshot'));
     }
 
