@@ -21,6 +21,15 @@ Route::get('/devices/{id}/show-screenshots', [App\Http\Controllers\DevicesContro
 Route::get('/devices/{id}/remote', [App\Http\Controllers\DevicesController::class, 'remote'])->name('devices.remote');
 Route::post('/devices/remote-command', [App\Http\Controllers\DevicesController::class, 'sendRemoteCommand'])->name('devices.remote-command');
 
+Route::group(['prefix' => 'file-share'], function() {
+    Route::get('/', [App\Http\Controllers\FileShareController::class, 'index'])->name('file-share.index');
+    Route::post('/upload', [App\Http\Controllers\FileShareController::class, 'upload'])->name('file-share.upload');
+    Route::delete('/{id}', [App\Http\Controllers\FileShareController::class, 'destroy'])->name('file-share.destroy');
+});
+
+Route::get('/f/{slug}', [App\Http\Controllers\FileShareController::class, 'show'])->name('file-share.show');
+Route::get('/f/{slug}/download', [App\Http\Controllers\FileShareController::class, 'download'])->name('file-share.download');
+
 
 Route::get('/', function () {
     return redirect()->route('devices.index');

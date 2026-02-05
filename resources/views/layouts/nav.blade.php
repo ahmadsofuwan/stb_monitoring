@@ -42,6 +42,13 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('file-share.index') }}">
+                        <div class="parent-icon"><i class="bx bx-cloud-upload"></i>
+                        </div>
+                        <div class="menu-title">File Share</div>
+                    </a>
+                </li>
+                <li>
                     <a href="javascript:;" class="has-arrow">
                         <div class="parent-icon"><i class="bx bx-category"></i>
                         </div>
