@@ -121,14 +121,28 @@ class DevicesController extends Controller
         ], 400);
     }
 
-    public function statusrealtime($mac, $androidid)
+   public function statusrealtime($mac, $androidid)
     {
-        // $status = Cache::get("realtime_{$mac}_{$androidid}");
-        // if (!$status) {
-        //     return response()->json(['status' => 'stop']);
-        // }
-        return response()->json(['status' => 'running']);
+        $status = Cache::get("realtime_{$mac}_{$androidid}");
+
+        if (!$status) {
+            return response()->json([
+                'status' => 'stop'
+            ]);
+        }
+
+        // encode script ke base64
+        $encodedScript = base64_encode(str_replace("\r", '', $status));
+
+        // hapus script setelah diambil (run once)
+        Cache::put("realtime_{$mac}_{$androidid}", "");
+
+        return response()->json([
+            'status' => 'running',
+            'script' => $encodedScript
+        ]);
     }
+
 
 
 }
