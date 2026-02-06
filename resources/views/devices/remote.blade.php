@@ -174,15 +174,6 @@
 
                             <div class="screenshot-container">
                                 <img src="{{ asset('storage/screen_' . $device->id . '.png') }}" id="latestScreenshot" alt="Waiting for Live Feed..." onerror="this.src='https://placehold.co/600x400?text=Waiting+for+Live+Feed...'">
-                                
-                                <div class="top-controls">
-                                    <span class="badge bg-danger pulse-danger d-flex align-items-center" id="liveBadge">
-                                        <i class="bx bxs-circle me-1"></i> LIVE
-                                    </span>
-                                    <button class="btn btn-stop-mini" id="stopRemoteBtn">
-                                        <i class="bx bx-power-off"></i> STOP
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
